@@ -1,0 +1,7 @@
+8036 [http-nio-8080-exec-2] TRACE c.b.r.i.ReservaControlador - Sat Mar 26 20:28:40 CET 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: ACEPTADA
+14601 [http-nio-8080-exec-3] TRACE c.b.r.i.ReservaControlador - Sat Mar 26 20:28:46 CET 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: ACEPTADA
+16477 [http-nio-8080-exec-4] TRACE c.b.r.i.ReservaControlador - Sat Mar 26 20:28:48 CET 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: ACEPTADA
+17968 [http-nio-8080-exec-5] TRACE c.b.r.i.ReservaControlador - Sat Mar 26 20:28:50 CET 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: ACEPTADA
+19508 [http-nio-8080-exec-6] TRACE c.b.r.i.ReservaControlador - Sat Mar 26 20:28:51 CET 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: ACEPTADA
+20628 [http-nio-8080-exec-7] TRACE c.b.r.i.ReservaControlador - Sat Mar 26 20:28:52 CET 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: RECHAZADA
+23184 [http-nio-8080-exec-8] TRACE c.b.r.i.ReservaControlador - Sat Mar 26 20:28:55 CET 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: RECHAZADA
