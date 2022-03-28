@@ -10,12 +10,13 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class ReservaOutputDto {
+    private long idReserva;
     private String ciudadDestino;
     private String nombre;
     private String apellido;
     private String telefono;
     private String email;
-    private Date fechaReserva;
+    private String fechaReserva;
     private Float horaReserva;
     private String status; // Necesario para el backweb
 }

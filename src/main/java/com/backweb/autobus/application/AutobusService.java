@@ -10,7 +10,5 @@ public interface AutobusService {
     Autobus findById(long id);
     Autobus add(AutobusInputDto inputDto);
     Autobus put(long id, AutobusInputDto inputDto);
-    Autobus decPlazas(long id);
-    Autobus incPlazas(long id);
     void del(long id);
 }

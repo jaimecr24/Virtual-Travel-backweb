@@ -27,8 +27,14 @@ public class DestinoServiceImpl implements DestinoService{
     }
 
     @Override
+    public List<Destino> findByDestino(String destino) {
+        return destinoRepo.findByNombreDestino(destino);
+    }
+
+    @Override
     public Destino add(DestinoInputDto inputDto) {
         // Crea un nuevo destino con la lista de autobuses vacía.
+        // TODO: Comprobar que el nombre del destino no está repetido.
         Destino ds = this.toDestino(inputDto);
         destinoRepo.save(ds);
         return ds;

@@ -10,10 +10,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
-import static java.sql.Date.valueOf;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @SpringBootApplication
 public class BackwebApplication {
@@ -36,7 +34,7 @@ public class BackwebApplication {
 			Float[] salidas = { 8f, 12f, 16f, 20f };
 			String anyo = "2022";
 			String mes = "04";
-			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyy");
+			SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
 			DestinoInputDto dsInputDto = new DestinoInputDto();
 			for (String destino:destinos) {
 				dsInputDto.setNombre(destino);
@@ -44,11 +42,11 @@ public class BackwebApplication {
 				long idDestino = ds.getIdDestino();
 				for (int i=1; i<=30; i++) {
 					String dateInString = String.format("%02d",i)+mes+anyo;
-					LocalDate fecha = LocalDate.parse(dateInString, dtf);
+					Date fecha = sdf.parse(dateInString);
 					for (Float hora:salidas) {
 						AutobusInputDto busInputDto = new AutobusInputDto();
 						busInputDto.setIdDestino(idDestino);
-						busInputDto.setFecha(valueOf(fecha));
+						busInputDto.setFecha(fecha);
 						busInputDto.setHoraSalida(hora);
 						// Falta: plazas libres deberá tomarse del back de la empresa.
 						busInputDto.setPlazasLibres(PLAZAS_LIBRES);

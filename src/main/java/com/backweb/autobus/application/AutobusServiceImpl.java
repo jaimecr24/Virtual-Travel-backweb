@@ -40,23 +40,6 @@ public class AutobusServiceImpl implements AutobusService{
     }
 
     @Override
-    public Autobus decPlazas(long id) {
-        Autobus bus = this.findById(id);
-        if (bus.getPlazasLibres()==0) throw new NotPlaceException("No hay plazas libres");
-        bus.setPlazasLibres(bus.getPlazasLibres()-1);
-        autobusRepo.save(bus);
-        return bus;
-    }
-
-    @Override
-    public Autobus incPlazas(long id) {
-        Autobus bus = this.findById(id);
-        bus.setPlazasLibres(bus.getPlazasLibres()+1);
-        autobusRepo.save(bus);
-        return bus;
-    }
-
-    @Override
     public Autobus put(long id, AutobusInputDto inputDto) {
         return null;
     }
