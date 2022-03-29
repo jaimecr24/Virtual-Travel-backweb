@@ -10,9 +10,9 @@ import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,6 +28,8 @@ public class ReservaControlador {
 
     @Autowired
     ReservaService reservaService;
+
+    String token="";
 
     private SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
     private Mailer mailer = MailerBuilder
@@ -71,11 +73,33 @@ public class ReservaControlador {
         return new ResponseEntity<>(reservaService.findDisponible(destino,fechaInferior,fechaSuperior,horaInferior,horaSuperior),HttpStatus.OK);
     }
 
+    // Llama a backempresa con el usuario y contraseña para obtener un token válido, que se almacena en this.token
+    @PostMapping("login")
+    public ResponseEntity<Void> login(@RequestHeader("user") String user, @RequestHeader("password") String pwd){
+        String newToken = "";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("user",user);
+        headers.set("password",pwd);
+        HttpEntity<Object> request = new HttpEntity<>(headers);
+        ResponseEntity<String> response = new RestTemplate().exchange(
+                "http://localhost:8081/api/v0/token",
+                HttpMethod.POST,
+                request,
+                String.class);
+        if (response.getStatusCode()==HttpStatus.OK) {
+            this.token = response.getBody();
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
+
     @GetMapping("reserva/{ciudadDestino}")
     public ResponseEntity<ReservaOutputDto> getReservas(@PathVariable String ciudadDestino)
     {
         //TODO:Implementa seguridad, llamando al servidor de la empresa al endpoint ‘checkSeguridad’.
         // Devolverá las reservas realizadas en la web.
+        // Antes de llamar a este endpoint se debe llamar a /login con usuario y contraseña válidos
+        // Llamada a backempresa para comprobar el token. Si es válido se piden las reservas
         return null;
     }
 

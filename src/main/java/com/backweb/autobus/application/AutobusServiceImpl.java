@@ -6,7 +6,6 @@ import com.backweb.autobus.infrastructure.AutobusRepo;
 import com.backweb.destino.application.DestinoService;
 import com.backweb.destino.domain.Destino;
 import com.backweb.shared.NotFoundException;
-import com.backweb.shared.NotPlaceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
