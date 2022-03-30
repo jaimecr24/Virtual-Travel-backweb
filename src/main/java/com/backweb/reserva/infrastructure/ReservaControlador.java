@@ -2,6 +2,7 @@ package com.backweb.reserva.infrastructure;
 
 import com.backweb.reserva.application.ReservaService;
 import com.backweb.reserva.domain.Reserva;
+import com.backweb.shared.KafkaMessageProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.mailer.AsyncResponse;
@@ -29,6 +30,9 @@ public class ReservaControlador {
     @Autowired
     ReservaService reservaService;
 
+    @Autowired
+    KafkaMessageProducer kafkaMessageProducer;
+
     private SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
     private Mailer mailer = MailerBuilder
             .withSMTPServer("smtp.mailtrap.io", 2525, "401dd4926d850f", "738ee9ea1b7e39")
@@ -53,6 +57,7 @@ public class ReservaControlador {
 
         if (Objects.equals(outDto.getStatus(), "ACEPTADA")) {
             sendMessage(outDto);
+            kafkaMessageProducer.sendMessage("reservas",outDto);
             return new ResponseEntity<>(outDto,HttpStatus.OK);
         }
         return new ResponseEntity<>(outDto,HttpStatus.NOT_ACCEPTABLE);

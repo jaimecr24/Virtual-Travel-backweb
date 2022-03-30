@@ -1,5 +1,6 @@
 package com.backweb.reserva.infrastructure;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
+@Data
 public class ReservaOutputDto {
     private long idReserva;
     private String ciudadDestino;
