@@ -29,8 +29,6 @@ public class ReservaControlador {
     @Autowired
     ReservaService reservaService;
 
-    String token="";
-
     private SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
     private Mailer mailer = MailerBuilder
             .withSMTPServer("smtp.mailtrap.io", 2525, "401dd4926d850f", "738ee9ea1b7e39")
@@ -73,34 +71,42 @@ public class ReservaControlador {
         return new ResponseEntity<>(reservaService.findDisponible(destino,fechaInferior,fechaSuperior,horaInferior,horaSuperior),HttpStatus.OK);
     }
 
-    // Llama a backempresa con el usuario y contraseña para obtener un token válido, que se almacena en this.token
+    // Llama a backempresa con el usuario y contraseña para obtener un token válido
     @PostMapping("login")
-    public ResponseEntity<Void> login(@RequestHeader("user") String user, @RequestHeader("password") String pwd){
-        String newToken = "";
+    public ResponseEntity<String> login(@RequestHeader("user") String user, @RequestHeader("password") String pwd){
         HttpHeaders headers = new HttpHeaders();
         headers.set("user",user);
         headers.set("password",pwd);
         HttpEntity<Object> request = new HttpEntity<>(headers);
-        ResponseEntity<String> response = new RestTemplate().exchange(
+        return new RestTemplate().exchange(
                 "http://localhost:8081/api/v0/token",
                 HttpMethod.POST,
                 request,
                 String.class);
-        if (response.getStatusCode()==HttpStatus.OK) {
-            this.token = response.getBody();
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("reserva/{ciudadDestino}")
-    public ResponseEntity<ReservaOutputDto> getReservas(@PathVariable String ciudadDestino)
+    public ResponseEntity<List<ReservaOutputDto>> getReservas(
+            @PathVariable String ciudadDestino,
+            @RequestBody String token,
+            @RequestParam(name="fechaInferior") String fechaInferior,
+            @RequestParam(name="fechaSuperior", required = false) String fechaSuperior,
+            @RequestParam(name="horaInferior", required = false) String horaInferior,
+            @RequestParam(name="horaSuperior", required = false) String horaSuperior)
     {
-        //TODO:Implementa seguridad, llamando al servidor de la empresa al endpoint ‘checkSeguridad’.
-        // Devolverá las reservas realizadas en la web.
-        // Antes de llamar a este endpoint se debe llamar a /login con usuario y contraseña válidos
-        // Llamada a backempresa para comprobar el token. Si es válido se piden las reservas
-        return null;
+        //Implementa seguridad, llamando al servidor de la empresa al endpoint ‘checkSeguridad’.
+        //Necesita recibir un token válido
+        HttpEntity<Object> request = new HttpEntity<>(new HttpHeaders());
+        ResponseEntity<Void> re = new RestTemplate().exchange(
+                "http://localhost:8081/api/v0/token/"+token,
+                HttpMethod.GET,
+                request,
+                Void.class);
+        if (re.getStatusCode()==HttpStatus.OK) {
+            // TODO: Obtener lista de reservas realizadas en la web, según fecha y hora
+            return new ResponseEntity<>(reservaService.findReservas(ciudadDestino, fechaInferior, fechaSuperior, horaInferior, horaSuperior), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ArrayList<>(),HttpStatus.FORBIDDEN);
     }
 
     private void sendMessage(ReservaOutputDto outDto){

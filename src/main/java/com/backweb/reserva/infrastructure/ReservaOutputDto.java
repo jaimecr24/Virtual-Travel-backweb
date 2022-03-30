@@ -19,4 +19,6 @@ public class ReservaOutputDto {
     private String fechaReserva;
     private Float horaReserva;
     private String status; // Necesario para el backweb
+
+
 }

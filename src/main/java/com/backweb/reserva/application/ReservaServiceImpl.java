@@ -68,6 +68,34 @@ public class ReservaServiceImpl implements ReservaService {
         }
     }
 
+    //TODO: Este método repite mucho código del anterior.
+    @Override
+    public List<ReservaOutputDto> findReservas(String destino, String fechaInferior, String fechaSuperior, String horaInferior, String horaSuperior) {
+        List<Destino> dstList = destinoService.findByDestino(destino);
+        //TODO: Si especificamos que el campo nombreDestino es único, el retorno de esta función será un único objeto, no una lista.
+        if (dstList.size()==0) throw new NotFoundException("Destino no encontrado");
+        Destino dst = dstList.get(0);
+        List<Autobus> busList = dst.getAutobuses();
+        try {
+            Date fInf = sdf2.parse(fechaInferior);
+            Date fSup = (fechaSuperior != null) ? sdf2.parse(fechaSuperior) : null;
+            Float hInf = (horaInferior != null) ? Float.parseFloat(horaInferior) : 0F;
+            Float hSup = (horaSuperior != null) ? Float.parseFloat(horaSuperior) : 24F;
+            Optional<List<Reserva>> reservas = busList.stream().filter(e ->
+                            e.getFecha().compareTo(fInf) >= 0
+                                    && (fSup==null || e.getFecha().compareTo(fSup)<=0)
+                                    && e.getHoraSalida()>=hInf && e.getHoraSalida()<=hSup).map(Autobus::getReservas)
+                    .reduce((l1,l2)-> { l1.addAll(l2); return l1; });
+            return reservas.map(reservaList -> reservaList.stream().map(this::toOutputDto).collect(Collectors.toList()))
+                    .orElseGet(ArrayList::new);
+        } catch(Exception e) {
+            if (e.getClass()== ParseException.class) {
+                //TODO
+            }
+            return new ArrayList<>();
+        }
+    }
+
     @Override
     public ReservaOutputDto add(ReservaInputDto inputDto) throws NotFoundException {
         // Crea un objeto Reserva con los datos indicados en inputDto
