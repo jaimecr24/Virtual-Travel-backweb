@@ -56,13 +56,15 @@ public class ReservaControlador {
                 " status: "+outDto.getStatus());
 
         if (Objects.equals(outDto.getStatus(), "ACEPTADA")) {
+            // Enviamos e-mail asyncrono.
             sendMessage(outDto);
-            kafkaMessageProducer.sendMessage("reservas",outDto);
+            // Enviamos mensaje a backempresa (partición 0)
+            kafkaMessageProducer.sendMessage("reservas", 0, outDto);
+            // Enviamos mensaje al resto de backwebs (particion 1)
+            kafkaMessageProducer.sendMessage("reservas",1,outDto);
             return new ResponseEntity<>(outDto,HttpStatus.OK);
         }
         return new ResponseEntity<>(outDto,HttpStatus.NOT_ACCEPTABLE);
-        // Falta mensaje al back de la empresa
-        // y listener para escuchar mensaje de confirmación.
     }
 
     @GetMapping("disponible/{destino}")

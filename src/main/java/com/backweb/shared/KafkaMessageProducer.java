@@ -1,7 +1,7 @@
 package com.backweb.shared;
 
-import com.backweb.reserva.domain.Reserva;
 import com.backweb.reserva.infrastructure.ReservaOutputDto;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -15,12 +15,11 @@ public class KafkaMessageProducer {
     @Autowired
     private KafkaTemplate<String, ReservaOutputDto> kafkaTemplate;
 
-    private String topicName = "reservas";
+    private KafkaProducer<String,ReservaOutputDto> producer;
 
-    public void sendMessage(String topic, ReservaOutputDto outDto)
+    public void sendMessage(String topic, int partition, ReservaOutputDto outDto)
     {
-        if (topic==null || topic.trim().equals("")) topic=topicName;
-        ListenableFuture<SendResult<String, ReservaOutputDto>> future = kafkaTemplate.send(topic, outDto);
+        ListenableFuture<SendResult<String, ReservaOutputDto>> future = kafkaTemplate.send(topic, partition, String.valueOf(outDto.getIdReserva()), outDto);
         future.addCallback(new ListenableFutureCallback<>() {
             @Override
             public void onSuccess(SendResult<String, ReservaOutputDto> result) {

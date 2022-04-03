@@ -1,10 +1,9 @@
-package com.backweb.shared;
+package com.backweb.reserva.infrastructure;
 
-import com.backweb.reserva.infrastructure.ReservaOutputDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
 
-public class ObjectDeserializer implements Deserializer<ReservaOutputDto> {
+public class ReservaOutputDtoDeserializer implements Deserializer<ReservaOutputDto> {
 
     @Override
     public ReservaOutputDto deserialize(String s, byte[] bytes) {

@@ -1,16 +1,11 @@
 package com.backweb.reserva.infrastructure;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.Date;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@Data
+@ToString
 public class ReservaOutputDto {
     private long idReserva;
     private String ciudadDestino;
