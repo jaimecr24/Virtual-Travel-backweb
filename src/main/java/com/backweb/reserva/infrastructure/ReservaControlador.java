@@ -86,7 +86,7 @@ public class ReservaControlador {
         headers.set("password",pwd);
         HttpEntity<Object> request = new HttpEntity<>(headers);
         return new RestTemplate().exchange(
-                "http://localhost:8081/api/v0/token",
+                "http://localhost:8080/api/v0/token",
                 HttpMethod.POST,
                 request,
                 String.class);
@@ -105,7 +105,7 @@ public class ReservaControlador {
         //Necesita recibir un token válido
         HttpEntity<Object> request = new HttpEntity<>(new HttpHeaders());
         ResponseEntity<Void> re = new RestTemplate().exchange(
-                "http://localhost:8081/api/v0/token/"+token,
+                "http://localhost:8080/api/v0/token/"+token,
                 HttpMethod.GET,
                 request,
                 Void.class);
@@ -125,7 +125,7 @@ public class ReservaControlador {
                 .withPlainText("Se ha recibido su reserva: \nDestino: "+outDto.getCiudadDestino()+
                         "\nFecha: "+outDto.getFechaReserva()+
                         "\nHora: "+outDto.getHoraReserva()+
-                        "\nIdentificador: "+outDto.getIdReserva()+
+                        "\nIdentificador: "+outDto.getIdentificador()+
                         "\n\nGracias por confiar en Virtual-Travel")
                 .buildEmail();
 

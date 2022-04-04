@@ -10,9 +10,11 @@ import com.backweb.reserva.infrastructure.ReservaInputDto;
 import com.backweb.reserva.infrastructure.ReservaOutputDto;
 import com.backweb.reserva.infrastructure.ReservaRepo;
 import com.backweb.shared.NotFoundException;
+import com.backweb.shared.NotPlaceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -27,11 +29,9 @@ public class ReservaServiceImpl implements ReservaService {
     @Autowired
     DestinoService destinoService;
 
-    @Autowired
-    AutobusService autobusService;
-
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
     private final SimpleDateFormat sdf2 = new SimpleDateFormat("ddMMyyyy");
+    private final SimpleDateFormat sdf3 = new SimpleDateFormat("ddMMyy");
 
     @Override
     public List<Reserva> findAll() {
@@ -41,6 +41,11 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     public Reserva findById(long id) {
         return reservaRepo.findById(id).orElseThrow(()->new NotFoundException("Reserva "+id+" no encontrada."));
+    }
+
+    @Override
+    public Reserva findByIdentificador(String identificador) {
+        return reservaRepo.findByIdentificador(identificador).orElseThrow(()-> new NotFoundException("Identificador "+identificador+" no encontrado"));
     }
 
     @Override
@@ -102,14 +107,31 @@ public class ReservaServiceImpl implements ReservaService {
         // El status de la reserva será ACEPTADA/RECHAZADA según las plazas libres y las ya aceptadas para ese autobús.
         Reserva rsv = this.toReserva(inputDto);
         Autobus bus = rsv.getAutobus();
-        rsv.setStatus((bus.getPlazasLibres() - numReservasAceptadas(bus) > 0) ? Reserva.STATUS.ACEPTADA : Reserva.STATUS.RECHAZADA);
+        long reservasDisp = bus.getPlazasLibres() - this.numReservasAceptadas(bus);
+        if (reservasDisp>0) {
+            rsv.setStatus(Reserva.STATUS.ACEPTADA);
+            rsv.setIdentificador(this.getIdentificadorReserva(bus));
+        }
+        else rsv.setStatus(Reserva.STATUS.RECHAZADA);
         rsv.setFechaRegistro(new Date());
         reservaRepo.save(rsv);
         return this.toOutputDto(rsv);
     }
 
-    private long numReservasAceptadas(Autobus bus) {
-        return bus.getReservas().stream().filter(e -> e.getStatus() == Reserva.STATUS.ACEPTADA).count();
+    @Override
+    @Transactional
+    public ReservaOutputDto add(ReservaOutputDto outputDto) throws NotFoundException, NotPlaceException {
+        // Si la reserva no existe:
+        // Crea objeto Reserva con los datos indicados en outputDto
+        // No quedan plazas libres, status será RECHAZADA y NO se añade a la base de datos local.
+        Optional<Reserva> optRsv = reservaRepo.findByIdentificador(outputDto.getIdentificador());
+        if (optRsv.isEmpty()) {
+            Reserva rsv = this.toReserva(outputDto);
+            rsv.setFechaRegistro(new Date());
+            reservaRepo.save(rsv);
+            return this.toOutputDto(rsv);
+        }
+        else return null; // Si ya existe, no hacemos nada y devolvemos null para indicarlo.
     }
 
     @Override
@@ -120,6 +142,20 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     public void del(long id) {
         // TODO: Poner estado de la reserva en CANCELADA ??
+    }
+
+    private String getIdentificadorReserva(Autobus bus){
+        // Obtiene el identificador de la próxima reserva en el bus, limitado a 99 reservas por bus
+        // Si se necesitan más, debe cambiarse el formato del último elemento del identificador a %03d
+        return bus.getDestino().getNombreDestino().substring(0,3).toUpperCase()
+                + sdf3.format(bus.getFecha())
+                + String.format("%02d",bus.getHoraSalida().intValue())
+                + String.format("%02d",this.numReservasAceptadas(bus));
+    }
+
+    private long numReservasAceptadas(Autobus bus) {
+        return bus.getReservas().stream().filter(e ->
+                e.getStatus() == Reserva.STATUS.ACEPTADA || e.getStatus() == Reserva.STATUS.CONFIRMADA).count();
     }
 
     public Reserva toReserva(ReservaInputDto inputDto) throws NotFoundException {
@@ -144,9 +180,35 @@ public class ReservaServiceImpl implements ReservaService {
         return rsv;
     }
 
+    public Reserva toReserva(ReservaOutputDto outputDto) throws NotFoundException {
+        // Crea una reserva con los datos de outputDto
+        Reserva rsv = new Reserva();
+        List<Destino> ldst = destinoService.findByDestino(outputDto.getCiudadDestino());
+        if (ldst.isEmpty()) throw new NotFoundException("Destino no encontrado: "+outputDto.getCiudadDestino());
+        List<Autobus> autobuses = ldst.get(0).getAutobuses();
+        Optional<Autobus> myBus =
+                autobuses.stream().filter(e ->
+                        sdf.format(e.getFecha()).equals(outputDto.getFechaReserva())
+                                && Objects.equals(e.getHoraSalida(), outputDto.getHoraReserva())).findFirst();
+        if (myBus.isEmpty()) throw new NotFoundException("No hay ningún autobús el "+outputDto.getFechaReserva()+" a las "+outputDto.getHoraReserva());
+        rsv.setNombre(outputDto.getNombre());
+        rsv.setApellido(outputDto.getApellido());
+        rsv.setEmail(outputDto.getEmail());
+        rsv.setTelefono(outputDto.getTelefono());
+        rsv.setAutobus(myBus.get());
+        rsv.setIdentificador(outputDto.getIdentificador());
+        switch (outputDto.getStatus()) {
+            case "ACEPTADA": rsv.setStatus(Reserva.STATUS.ACEPTADA); break;
+            case "RECHAZADA": rsv.setStatus(Reserva.STATUS.RECHAZADA); break;
+            case "CONFIRMADA": rsv.setStatus(Reserva.STATUS.CONFIRMADA); break;
+        }
+        return rsv;
+    }
+
     public ReservaOutputDto toOutputDto(Reserva rsv) {
         ReservaOutputDto outDto = new ReservaOutputDto();
         outDto.setIdReserva(rsv.getIdReserva());
+        outDto.setIdentificador(rsv.getIdentificador());
         outDto.setCiudadDestino(rsv.getAutobus().getDestino().getNombreDestino());
         outDto.setNombre(rsv.getNombre());
         outDto.setApellido(rsv.getApellido());

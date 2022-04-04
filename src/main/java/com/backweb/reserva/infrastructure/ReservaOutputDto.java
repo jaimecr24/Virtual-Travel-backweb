@@ -8,6 +8,7 @@ import lombok.*;
 @ToString
 public class ReservaOutputDto {
     private long idReserva;
+    private String identificador;
     private String ciudadDestino;
     private String nombre;
     private String apellido;
@@ -16,6 +17,4 @@ public class ReservaOutputDto {
     private String fechaReserva;
     private Float horaReserva;
     private String status; // Necesario para el backweb
-
-
 }
