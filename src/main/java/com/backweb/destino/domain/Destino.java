@@ -20,6 +20,7 @@ public class Destino {
     private Long idDestino;
 
     private String nombreDestino;
+    private String key;
 
     @OneToMany(mappedBy = "destino")
     private List<Autobus> autobuses = new ArrayList<>();

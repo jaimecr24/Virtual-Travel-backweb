@@ -32,6 +32,11 @@ public class DestinoServiceImpl implements DestinoService{
     }
 
     @Override
+    public List<Destino> findByKey(String key) {
+        return destinoRepo.findByKey(key);
+    }
+
+    @Override
     public Destino add(DestinoInputDto inputDto) {
         // Crea un nuevo destino con la lista de autobuses vacía.
         // TODO: Comprobar que el nombre del destino no está repetido.
@@ -58,6 +63,7 @@ public class DestinoServiceImpl implements DestinoService{
     public Destino toDestino(DestinoInputDto inputDto) {
         Destino ds = new Destino();
         ds.setNombreDestino(inputDto.getNombre());
+        ds.setKey(inputDto.getKey());
         ds.setAutobuses(new ArrayList<>());
         return ds;
     }

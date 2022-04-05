@@ -29,9 +29,15 @@ public class ReservaServiceImpl implements ReservaService {
     @Autowired
     DestinoService destinoService;
 
-    private final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+    @Autowired
+    AutobusService autobusService;
+
+    @Autowired
+    SimpleDateFormat sdf1, sdf2, sdf3;
+
+    /*private final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
     private final SimpleDateFormat sdf2 = new SimpleDateFormat("ddMMyyyy");
-    private final SimpleDateFormat sdf3 = new SimpleDateFormat("ddMMyy");
+    private final SimpleDateFormat sdf3 = new SimpleDateFormat("ddMMyy");*/
 
     @Override
     public List<Reserva> findAll() {
@@ -104,16 +110,17 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     public ReservaOutputDto add(ReservaInputDto inputDto) throws NotFoundException {
         // Crea un objeto Reserva con los datos indicados en inputDto
-        // El status de la reserva será ACEPTADA/RECHAZADA según las plazas libres y las ya aceptadas para ese autobús.
+        // El status de la reserva será ACEPTADA/RECHAZADA según las plazas libres.
         Reserva rsv = this.toReserva(inputDto);
         Autobus bus = rsv.getAutobus();
-        long reservasDisp = bus.getPlazasLibres() - this.numReservasAceptadas(bus);
-        if (reservasDisp>0) {
+        int plazas = bus.getPlazasLibres();
+        if (plazas>0) {
             rsv.setStatus(Reserva.STATUS.ACEPTADA);
             rsv.setIdentificador(this.getIdentificadorReserva(bus));
         }
         else rsv.setStatus(Reserva.STATUS.RECHAZADA);
         rsv.setFechaRegistro(new Date());
+        bus.setPlazasLibres(plazas-1); // Actualizamos plazas disponibles.
         reservaRepo.save(rsv);
         return this.toOutputDto(rsv);
     }
@@ -128,6 +135,10 @@ public class ReservaServiceImpl implements ReservaService {
         if (optRsv.isEmpty()) {
             Reserva rsv = this.toReserva(outputDto);
             rsv.setFechaRegistro(new Date());
+            int plazas = rsv.getAutobus().getPlazasLibres();
+            // El siguiente error no debería producirse si todos los backweb están bien sincronizados.
+            if (plazas==0) throw new NotPlaceException("Reserva rechazada. No queda sitio en el autobús");
+            rsv.getAutobus().setPlazasLibres(plazas-1); // Actualizamos el número de plazas disponibles.
             reservaRepo.save(rsv);
             return this.toOutputDto(rsv);
         }
@@ -167,7 +178,7 @@ public class ReservaServiceImpl implements ReservaService {
         List<Autobus> autobuses = dst.getAutobuses();
         Optional<Autobus> myBus =
                 autobuses.stream().filter(e ->
-                        sdf.format(e.getFecha()).equals(sdf.format(inputDto.getFechaReserva()))
+                        sdf1.format(e.getFecha()).equals(sdf1.format(inputDto.getFechaReserva()))
                                 && Objects.equals(e.getHoraSalida(), inputDto.getHoraSalida())).findFirst();
         if (myBus.isEmpty()) throw new NotFoundException("No hay ningún autobús el "+inputDto.getFechaReserva()+" a las "+inputDto.getHoraSalida());
         // Asignamos los campos del objeto Reserva
@@ -188,7 +199,7 @@ public class ReservaServiceImpl implements ReservaService {
         List<Autobus> autobuses = ldst.get(0).getAutobuses();
         Optional<Autobus> myBus =
                 autobuses.stream().filter(e ->
-                        sdf.format(e.getFecha()).equals(outputDto.getFechaReserva())
+                        sdf1.format(e.getFecha()).equals(outputDto.getFechaReserva())
                                 && Objects.equals(e.getHoraSalida(), outputDto.getHoraReserva())).findFirst();
         if (myBus.isEmpty()) throw new NotFoundException("No hay ningún autobús el "+outputDto.getFechaReserva()+" a las "+outputDto.getHoraReserva());
         rsv.setNombre(outputDto.getNombre());
@@ -214,7 +225,7 @@ public class ReservaServiceImpl implements ReservaService {
         outDto.setApellido(rsv.getApellido());
         outDto.setEmail(rsv.getEmail());
         outDto.setTelefono(rsv.getTelefono());
-        outDto.setFechaReserva(sdf.format(rsv.getAutobus().getFecha()));
+        outDto.setFechaReserva(sdf1.format(rsv.getAutobus().getFecha()));
         outDto.setHoraReserva(rsv.getAutobus().getHoraSalida());
         switch (rsv.getStatus()) {
             case ACEPTADA: outDto.setStatus("ACEPTADA"); break;

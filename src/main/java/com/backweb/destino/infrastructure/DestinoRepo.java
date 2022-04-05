@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface DestinoRepo extends JpaRepository<Destino,Long> {
     List<Destino> findByNombreDestino(String nombreDestino);
+    List<Destino> findByKey(String key);
 }

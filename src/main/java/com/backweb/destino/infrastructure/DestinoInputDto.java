@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class DestinoInputDto {
     private String nombre;
+    private String key;
 }

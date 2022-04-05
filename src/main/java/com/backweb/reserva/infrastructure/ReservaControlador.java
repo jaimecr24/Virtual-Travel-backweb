@@ -15,7 +15,6 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +32,6 @@ public class ReservaControlador {
     @Autowired
     KafkaMessageProducer kafkaMessageProducer;
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
     private Mailer mailer = MailerBuilder
             .withSMTPServer("smtp.mailtrap.io", 2525, "401dd4926d850f", "738ee9ea1b7e39")
             .withTransportStrategy(TransportStrategy.SMTP).buildMailer();
