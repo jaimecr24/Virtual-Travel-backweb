@@ -2,6 +2,7 @@ package com.backweb.shared;
 
 import com.backweb.autobus.application.AutobusService;
 import com.backweb.autobus.domain.Autobus;
+import com.backweb.destino.application.DestinoService;
 import com.backweb.reserva.application.ReservaService;
 import com.backweb.reserva.infrastructure.ReservaOutputDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class KafkaListenerOne {
     String port;
 
     @Autowired
+    DestinoService destinoService;
+
+    @Autowired
     ReservaService reservaService;
 
     @Autowired
@@ -30,9 +34,6 @@ public class KafkaListenerOne {
     @Autowired
     SimpleDateFormat sdf1, sdf2, sdf3;
 
-    //TODO: Cambiar esto añadiendo containerFactory = "listenerReservaFactory", y así eliminar la modificación
-    // de la configuración por defecto.
-    // Después falta configurar el productor (nueva clase KafkaProducerConfig)
     @KafkaListener(topics = "reservas", groupId = "backweb", topicPartitions = {
             @TopicPartition(topic = "reservas", partitionOffsets = { @PartitionOffset(partition = "1", initialOffset = "0")} )
     })
@@ -56,11 +57,12 @@ public class KafkaListenerOne {
         String cmd = comando.substring(0,i);
         String identificador = comando.substring(i+1, j);
         String last = comando.substring(j+1);
-        String dst = identificador.substring(0,3);
-        Date fecha = sdf3.parse(identificador.substring(3,9));
-        Float hora = Float.parseFloat(identificador.substring(9,11));
+        int longitudId = destinoService.ID_LENGTH;
+        String dst = identificador.substring(0, longitudId);
+        Date fecha = sdf3.parse(identificador.substring(longitudId, longitudId+6));
+        Float hora = Float.parseFloat(identificador.substring(longitudId+6, longitudId+8));
         int plazas = Integer.parseInt(last);
-        Autobus bus = autobusService.setPlazas(dst, fecha, hora, plazas);
+        Autobus bus = autobusService.setPlazas(identificador.substring(0,autobusService.ID_LENGTH), plazas);
         System.out.println("Backweb ("+port+"): Actualizadas plazas del autobús "
                 +dst+sdf3.format(bus.getFecha())
                 +String.format("%02d",bus.getHoraSalida().intValue())

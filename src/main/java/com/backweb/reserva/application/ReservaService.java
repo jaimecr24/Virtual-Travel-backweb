@@ -15,6 +15,5 @@ public interface ReservaService {
     List<ReservaOutputDto> findReservas(String destino, String fechaInferior, String fechaSuperior, String horaInferior, String horaSuperior);
     ReservaOutputDto add(ReservaInputDto inputDto);
     ReservaOutputDto add(ReservaOutputDto outputDto);
-    Reserva put(long id, Reserva reserva);
     void del(long id);
 }

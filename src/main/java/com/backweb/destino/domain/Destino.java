@@ -16,11 +16,9 @@ import java.util.List;
 public class Destino {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private Long idDestino;
+    private String id;
 
     private String nombreDestino;
-    private String key;
 
     @OneToMany(mappedBy = "destino")
     private List<Autobus> autobuses = new ArrayList<>();

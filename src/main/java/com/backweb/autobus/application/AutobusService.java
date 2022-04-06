@@ -7,10 +7,12 @@ import java.util.Date;
 import java.util.List;
 
 public interface AutobusService {
+    int ID_LENGTH=11;
+    int MAX_PLAZAS=5;
     List<Autobus> findAll();
-    Autobus findById(long id);
+    Autobus findById(String id);
     Autobus add(AutobusInputDto inputDto);
-    Autobus put(long id, AutobusInputDto inputDto);
-    Autobus setPlazas(String destino, Date fecha, Float hora, int plazas);
-    void del(long id);
+    Autobus setPlazas(String id, int plazas);
+    void del(String id);
+    String getIdBus(String idDestino, Date fecha, Float hora);
 }

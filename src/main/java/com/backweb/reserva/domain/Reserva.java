@@ -21,7 +21,7 @@ public class Reserva {
     private String identificador;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idAutobus")
+    @JoinColumn(name = "id")
     private Autobus autobus;
 
     private String nombre;
