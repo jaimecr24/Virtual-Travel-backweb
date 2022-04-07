@@ -40,7 +40,7 @@ public class KafkaListenerOne {
     public void listenReservasWeb(ReservaOutputDto outputDto) {
         System.out.println("Backweb ("+port+"): Recibido mensaje en partición 1: " + outputDto.toString());
         if (reservaService.add(outputDto)==null) {
-            System.out.println("Reserva ya existente");
+            System.out.println("Reserva ya existente o rechazada por falta de sitio");
         } else {
             System.out.println("Reserva añadida en la base de datos local, con identificador "+outputDto.getIdentificador());
         }

@@ -105,10 +105,10 @@ public class ReservaServiceImpl implements ReservaService {
         if (plazas>0) {
             rsv.setStatus(Reserva.STATUS.ACEPTADA);
             rsv.setIdentificador(this.getIdentificadorReserva(bus));
+            bus.setPlazasLibres(plazas-1); // Actualizamos plazas disponibles.
         }
         else rsv.setStatus(Reserva.STATUS.RECHAZADA);
         rsv.setFechaRegistro(new Date());
-        bus.setPlazasLibres(plazas-1); // Actualizamos plazas disponibles.
         reservaRepo.save(rsv);
         return this.toOutputDto(rsv);
     }
@@ -116,10 +116,10 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     @Transactional
     public ReservaOutputDto add(ReservaOutputDto outputDto) throws NotFoundException, NotPlaceException {
-        // Se llama a este método para actualizar la lista de reservas con las recibidas por otros servidores
+        // Se llama a este método para actualizar la lista de reservas con las recibidas por kafka.
         // Por tanto conservamos el mismo identificador de la reserva y no enviamos mensaje a backempresa.
-        // Si la reserva no existe crea una con los datos de outputDto
-        // Si existe devuelve null para indicarlo.
+        // Si la reserva no existe y queda sitio libre crea una con los datos de outputDto
+        // Si existe o no queda sitio libre devuelve null para indicarlo.
         Optional<Reserva> optRsv = reservaRepo.findByIdentificador(outputDto.getIdentificador());
         if (optRsv.isEmpty()) {
             Reserva rsv = this.toReserva(outputDto);
@@ -127,13 +127,10 @@ public class ReservaServiceImpl implements ReservaService {
             Autobus bus = rsv.getAutobus();
             int plazas = bus.getPlazasLibres();
             long aceptadas = this.numReservasAceptadas(bus);
-            // El siguiente error no debería producirse si todos los backweb están bien sincronizados.
-            if (plazas==0 && aceptadas >= bus.getMaxPlazas())
-                    throw new NotPlaceException("Reserva rechazada. No queda sitio en el autobús");
-            // Si el número de plazas es distinto del máximo número de plazas - número de reservas aceptadas
-            // es porque faltan por recibirse actualizaciones de reservas.
-            // Por tanto añadimos la reserva pero sin modificar las plazas libres.
-            if (plazas == bus.getMaxPlazas()-aceptadas) rsv.getAutobus().setPlazasLibres(plazas-1);
+            if (plazas==0) return null; // Si no hay plazas cualquier reserva llegada por kafka es ignorada
+            // Pero si plazas > 0, sólo cambiamos el número de plazas cuando el total de plazas
+            // menos las aceptadas sea igual (o mayor) a las plazas libres.
+            if (plazas >= bus.getMaxPlazas()-aceptadas) rsv.getAutobus().setPlazasLibres(plazas-1);
             reservaRepo.save(rsv);
             return this.toOutputDto(rsv);
         }
@@ -142,7 +139,7 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public void del(long id) {
-        // TODO: Poner estado de la reserva en CANCELADA ??
+        // TODO: Se pueden cancelar reservas... ??
     }
 
     private String getIdentificadorReserva(Autobus bus){

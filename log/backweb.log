@@ -30,3 +30,13 @@
 863962 [http-nio-8091-exec-2] TRACE c.b.r.i.ReservaControlador - Wed Apr 06 19:54:17 CEST 2022 Reserva: Valencia 02-04-2022 16H nombre1 apellido1 status: ACEPTADA
 875694 [http-nio-8091-exec-1] TRACE c.b.r.i.ReservaControlador - Wed Apr 06 19:54:29 CEST 2022 Reserva: Valencia 02-04-2022 16H nombre1 apellido1 status: ACEPTADA
 931333 [http-nio-8090-exec-6] TRACE c.b.r.i.ReservaControlador - Wed Apr 06 19:54:52 CEST 2022 Reserva: Valencia 02-04-2022 16H nombre1 apellido1 status: ACEPTADA
+43197 [http-nio-8091-exec-2] TRACE c.b.r.i.ReservaControlador - Thu Apr 07 09:49:15 CEST 2022 Reserva: Valencia 02-04-2022 16H nombre1 apellido1 status: ACEPTADA
+138426 [http-nio-8091-exec-5] TRACE c.b.r.i.ReservaControlador - Thu Apr 07 09:50:50 CEST 2022 Reserva: Valencia 02-04-2022 16H nombre1 apellido1 status: ACEPTADA
+174216 [http-nio-8091-exec-6] TRACE c.b.r.i.ReservaControlador - Thu Apr 07 09:51:26 CEST 2022 Reserva: Valencia 02-04-2022 16H nombre1 apellido1 status: RECHAZADA
+42038 [http-nio-8090-exec-4] TRACE c.b.r.i.ReservaControlador - Thu Apr 07 09:55:33 CEST 2022 Reserva: Valencia 02-04-2022 16H nombre1 apellido1 status: RECHAZADA
+94121 [http-nio-8090-exec-1] TRACE c.b.r.i.ReservaControlador - Thu Apr 07 11:09:20 CEST 2022 Reserva: Valencia 02-04-2022 16H nombre1 apellido1 status: RECHAZADA
+1184373 [http-nio-8090-exec-5] TRACE c.b.r.i.ReservaControlador - Thu Apr 07 11:27:30 CEST 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: ACEPTADA
+208413 [http-nio-8091-exec-2] TRACE c.b.r.i.ReservaControlador - Thu Apr 07 11:37:26 CEST 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: ACEPTADA
+248416 [http-nio-8091-exec-3] TRACE c.b.r.i.ReservaControlador - Thu Apr 07 11:38:06 CEST 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: ACEPTADA
+255008 [http-nio-8091-exec-4] TRACE c.b.r.i.ReservaControlador - Thu Apr 07 11:38:13 CEST 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: ACEPTADA
+261227 [http-nio-8091-exec-5] TRACE c.b.r.i.ReservaControlador - Thu Apr 07 11:38:19 CEST 2022 Reserva: Valencia 02-04-2022 12H nombre1 apellido1 status: RECHAZADA

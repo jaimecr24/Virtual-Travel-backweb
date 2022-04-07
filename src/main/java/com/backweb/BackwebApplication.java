@@ -19,7 +19,7 @@ public class BackwebApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BackwebApplication.class, args);
 	}
-
+/*
 	@Bean
 	CommandLineRunner init(
 			DestinoService destinoService,
@@ -55,7 +55,7 @@ public class BackwebApplication {
 			}
 		};
 	}
-
+*/
 	@Bean(name = "sdf1")
 	SimpleDateFormat sdf1() {
 		return new SimpleDateFormat("dd-MM-yyyy");
