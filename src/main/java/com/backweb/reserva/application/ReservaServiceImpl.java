@@ -34,7 +34,7 @@ public class ReservaServiceImpl implements ReservaService {
     AutobusService autobusService;
 
     @Autowired
-    SimpleDateFormat sdf1, sdf2, sdf3;
+    SimpleDateFormat sdf1, sdf2;
 
     @Override
     public List<Reserva> findAll() {
@@ -53,6 +53,9 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public List<ReservaDisponibleOutputDto> findDisponible(String destino, String fechaInferior, String fechaSuperior, String horaInferior, String horaSuperior) {
+        // Obtiene todos los autobuses con plazas disponibles para el destino e intervalo especificado.
+        // fechaSuperior, horaInferior y horaSuperior pueden ser null.
+        // Formato de las fechas: ddMMyyyy || Formato de las horas: 00
         List<Destino> dstList = destinoService.findByDestino(destino);
         if (dstList.size()==0) return new ArrayList<>();
         Destino dst = dstList.get(0);
@@ -74,6 +77,9 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public List<ReservaOutputDto> findReservas(String destino, String fechaInferior, String fechaSuperior, String horaInferior, String horaSuperior) {
+        // Obtiene todas las reservas anotadas para un destino y un intervalo de fechas y horas (sin importar el status).
+        // fechaSuperior, horaInferior y horaSuperior pueden ser null.
+        // Formato de las fechas: ddMMyyyy || Formato de las horas: 00
         List<Destino> dstList = destinoService.findByDestino(destino);
         if (dstList.size()==0) return new ArrayList<>();
         Destino dst = dstList.get(0);
@@ -137,9 +143,14 @@ public class ReservaServiceImpl implements ReservaService {
         else return null;
     }
 
+    @Transactional
     @Override
-    public void del(long id) {
-        // TODO: Se pueden cancelar reservas... ??
+    public void del(long idReserva) {
+        Reserva rsv = this.findById(idReserva);
+        Autobus bus = rsv.getAutobus();
+        int plazas = bus.getPlazasLibres();
+        bus.setPlazasLibres(plazas+1);
+        reservaRepo.delete(rsv);
     }
 
     private String getIdentificadorReserva(Autobus bus){
@@ -182,10 +193,11 @@ public class ReservaServiceImpl implements ReservaService {
         rsv.setTelefono(outputDto.getTelefono());
         rsv.setAutobus(bus);
         rsv.setIdentificador(outputDto.getIdentificador());
-        switch (outputDto.getStatus()) {
+        if (outputDto.getStatus()!=null) switch (outputDto.getStatus()) {
             case "ACEPTADA": rsv.setStatus(Reserva.STATUS.ACEPTADA); break;
             case "RECHAZADA": rsv.setStatus(Reserva.STATUS.RECHAZADA); break;
             case "CONFIRMADA": rsv.setStatus(Reserva.STATUS.CONFIRMADA); break;
+            default: rsv.setStatus(null);
         }
         return rsv;
     }
@@ -196,16 +208,21 @@ public class ReservaServiceImpl implements ReservaService {
 
     public ReservaOutputDto toOutputDto(Reserva rsv) {
         ReservaOutputDto outDto = new ReservaOutputDto();
-        outDto.setIdReserva(rsv.getIdReserva());
-        outDto.setIdentificador(rsv.getIdentificador());
-        outDto.setCiudadDestino(rsv.getAutobus().getDestino().getNombreDestino());
+        if (rsv.getIdReserva()!=null) outDto.setIdReserva(rsv.getIdReserva());
+        String id = rsv.getIdentificador();
+        if (id!=null) {
+            outDto.setIdentificador(id);
+            String idDestino = rsv.getIdentificador().substring(0,3);
+            Destino dst = destinoService.findById(idDestino);
+            outDto.setCiudadDestino(dst.getNombreDestino());
+        }
         outDto.setNombre(rsv.getNombre());
         outDto.setApellido(rsv.getApellido());
         outDto.setEmail(rsv.getEmail());
         outDto.setTelefono(rsv.getTelefono());
         outDto.setFechaReserva(sdf1.format(rsv.getAutobus().getFecha()));
         outDto.setHoraReserva(rsv.getAutobus().getHoraSalida());
-        switch (rsv.getStatus()) {
+        if (rsv.getStatus()!=null) switch (rsv.getStatus()) {
             case ACEPTADA: outDto.setStatus("ACEPTADA"); break;
             case RECHAZADA: outDto.setStatus("RECHAZADA"); break;
             case CONFIRMADA: outDto.setStatus("CONFIRMADA"); break;

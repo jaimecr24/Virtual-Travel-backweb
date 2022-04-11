@@ -24,7 +24,7 @@ public class AutobusServiceImpl implements AutobusService{
     DestinoService destinoService;
 
     @Autowired
-    SimpleDateFormat sdf1, sdf2, sdf3;
+    SimpleDateFormat sdf1, sdf3;
 
     @Override
     public List<Autobus> findAll() {

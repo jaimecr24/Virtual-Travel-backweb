@@ -49,15 +49,7 @@ public class DestinoServiceImpl implements DestinoService{
     @Override
     public Destino patch(String id, DestinoInputDto inputDto) {
         // Permite modificar el nombre de un destino.
-        // Solo se modifican los campos que no sean nulo.
         Destino ds = this.findById(id);
-        if (inputDto.getId()!=null) {
-            if (inputDto.getId().length()!=ID_LENGTH)
-                throw new UnprocesableException("El id debe tener "+ID_LENGTH+" caracteres");
-            if (!inputDto.getId().equals(ds.getId()) && destinoRepo.findById(inputDto.getId()).isPresent())
-                throw new UnprocesableException("No puede modificar el id a un valor ya existente");
-            ds.setId(inputDto.getId());
-        }
         if (inputDto.getNombre()!=null) ds.setNombreDestino(inputDto.getNombre());
         destinoRepo.save(ds);
         return ds;
