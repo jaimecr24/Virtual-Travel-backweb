@@ -42,12 +42,6 @@ public class ReservaControlador {
             .withSMTPServer("smtp.mailtrap.io", 2525, "401dd4926d850f", "738ee9ea1b7e39")
             .withTransportStrategy(TransportStrategy.SMTP).buildMailer();
 
-    @GetMapping
-    public ResponseEntity<List<Reserva>> findAll()
-    {
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
-    }
-
     @PostMapping("reserva")
     public ResponseEntity<ReservaOutputDto> add(@RequestBody ReservaInputDto inputDto)
     {
@@ -60,7 +54,7 @@ public class ReservaControlador {
                 " status: "+outDto.getStatus());
 
         if (Objects.equals(outDto.getStatus(), "ACEPTADA")) {
-            // Enviamos e-mail asyncrono.
+            // Enviamos e-mail de forma asyncrona.
             sendMessage(outDto);
             // Enviamos mensaje a backempresa y al resto de backweb
             kafkaMessageProducer.sendMessage("reservas", 0, outDto);

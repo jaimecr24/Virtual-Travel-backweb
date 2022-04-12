@@ -32,11 +32,9 @@ public class KafkaListenerOne {
     AutobusService autobusService;
 
     @Autowired
-    SimpleDateFormat sdf1, sdf2, sdf3;
+    SimpleDateFormat sdf3;
 
-    @KafkaListener(topics = "reservas", groupId = "backweb", topicPartitions = {
-            @TopicPartition(topic = "reservas", partitionOffsets = { @PartitionOffset(partition = "0", initialOffset = "0")} )
-    })
+    @KafkaListener(topics = {"reservas"}, topicPartitions = {@TopicPartition(topic = "reservas", partitions={"0"})})
     public void listenReservasWeb(ReservaOutputDto outputDto) {
         System.out.println("Backweb ("+port+"): Recibido mensaje en reservas partición 0: " + outputDto.toString());
         if (reservaService.add(outputDto)==null) {
@@ -46,9 +44,8 @@ public class KafkaListenerOne {
         }
     }
 
-    @KafkaListener(topics = "comandos", groupId = "backweb", containerFactory = "listenerStringFactory", topicPartitions = {
-            @TopicPartition(topic = "comandos", partitionOffsets = { @PartitionOffset(partition = "0", initialOffset = "0")} )
-    })
+    @KafkaListener(topics = {"comandos"}, containerFactory = "listenerStringFactory",
+            topicPartitions = {@TopicPartition(topic = "comandos", partitions={"0"})})
     public void listenComandos(String comando) throws ParseException {
         System.out.println("Backweb ("+port+"): Recibido mensaje en comandos partición 0: " + comando);
         // Ex: UPDATE:VAL0204222000:04

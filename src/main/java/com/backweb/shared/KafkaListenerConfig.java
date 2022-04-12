@@ -21,11 +21,15 @@ public class KafkaListenerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
+    @Value("${kafkaGroup}")
+    private String kafkaGroup;
+
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String,String> listenerStringFactory()
     {
         Map<String,Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaGroup);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
@@ -41,7 +45,8 @@ public class KafkaListenerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, ReservaOutputDto> listenerReservaFactory()
     {
         Map<String,Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaGroup);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ReservaOutputDtoDeserializer.class);
 

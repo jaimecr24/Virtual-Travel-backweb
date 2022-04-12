@@ -1,7 +1,6 @@
 package com.backweb;
 
 import com.backweb.autobus.application.AutobusService;
-import com.backweb.autobus.domain.Autobus;
 import com.backweb.autobus.infrastructure.AutobusInputDto;
 import com.backweb.destino.application.DestinoService;
 import com.backweb.destino.domain.Destino;
