@@ -82,7 +82,7 @@ public class AutobusServiceImpl implements AutobusService{
         bus.setFecha(inputDto.getFecha());
         bus.setHoraSalida(inputDto.getHoraSalida());
         bus.setPlazasLibres(inputDto.getPlazasLibres());
-        bus.setMaxPlazas(MAX_PLAZAS);
+        bus.setMaxPlazas(inputDto.getMaxPlazas());
         return bus;
     }
 }

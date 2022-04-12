@@ -13,5 +13,6 @@ public class AutobusInputDto {
     private String idDestino;
     private Date fecha;
     private Float horaSalida;
-    private int plazasLibres = 40;
+    private int plazasLibres;
+    private int maxPlazas;
 }

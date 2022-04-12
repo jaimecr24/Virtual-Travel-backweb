@@ -60,8 +60,9 @@ public class ReservaServiceImplTest {
         destinoService.add(new DestinoInputDto(idDestino1, nombreDestino1));
         // Añadimos dos autobuses a ese destino, cada uno con dos plazas libres.
         Date fecha = sdf3.parse(fechaStr);
-        AutobusInputDto inputDto1 = new AutobusInputDto(idDestino1, fecha, horaSalida,2);
-        AutobusInputDto inputDto2 = new AutobusInputDto(idDestino1, fecha, horaSalida+1,2);
+        int maxPlazas = 5;
+        AutobusInputDto inputDto1 = new AutobusInputDto(idDestino1, fecha, horaSalida,2, maxPlazas);
+        AutobusInputDto inputDto2 = new AutobusInputDto(idDestino1, fecha, horaSalida+1,2, maxPlazas);
         autobusService.add(inputDto1);
         autobusService.add(inputDto2);
     }

@@ -11,6 +11,7 @@ import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -32,14 +33,19 @@ public class ReservaControlador {
     @Autowired
     KafkaMessageProducer kafkaMessageProducer;
 
-    private Mailer mailer = MailerBuilder
+    @Value("${empresaport}")
+    String empresaport;
+
+    private final String host = "backempresa";
+
+    private final Mailer mailer = MailerBuilder
             .withSMTPServer("smtp.mailtrap.io", 2525, "401dd4926d850f", "738ee9ea1b7e39")
             .withTransportStrategy(TransportStrategy.SMTP).buildMailer();
 
     @GetMapping
     public ResponseEntity<List<Reserva>> findAll()
     {
-        return new ResponseEntity<>(new ArrayList<Reserva>(), HttpStatus.OK);
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
 
     @PostMapping("reserva")
@@ -47,7 +53,7 @@ public class ReservaControlador {
     {
         // Realizamos reserva
         ReservaOutputDto outDto = reservaService.add(inputDto);
-        log.trace(new Date().toString()+" Reserva: "+
+        log.trace(new Date()+" Reserva: "+
                 outDto.getCiudadDestino()+" "+outDto.getFechaReserva()+" "+
                 String.format("%02dH ",outDto.getHoraReserva().intValue())+
                 outDto.getNombre()+" "+outDto.getApellido()+
@@ -56,10 +62,8 @@ public class ReservaControlador {
         if (Objects.equals(outDto.getStatus(), "ACEPTADA")) {
             // Enviamos e-mail asyncrono.
             sendMessage(outDto);
-            // Enviamos mensaje a backempresa (partición 0)
+            // Enviamos mensaje a backempresa y al resto de backweb
             kafkaMessageProducer.sendMessage("reservas", 0, outDto);
-            // Enviamos mensaje al resto de backwebs (particion 1)
-            kafkaMessageProducer.sendMessage("reservas",1,outDto);
             return new ResponseEntity<>(outDto,HttpStatus.OK);
         }
         return new ResponseEntity<>(outDto,HttpStatus.NOT_ACCEPTABLE);
@@ -84,7 +88,7 @@ public class ReservaControlador {
         headers.set("password",pwd);
         HttpEntity<Object> request = new HttpEntity<>(headers);
         return new RestTemplate().exchange(
-                "http://localhost:8080/api/v0/token",
+                "http://"+host+":"+empresaport+"/api/v0/token",
                 HttpMethod.POST,
                 request,
                 String.class);
@@ -103,7 +107,7 @@ public class ReservaControlador {
         //Necesita recibir un token válido
         HttpEntity<Object> request = new HttpEntity<>(new HttpHeaders());
         ResponseEntity<Void> re = new RestTemplate().exchange(
-                "http://localhost:8080/api/v0/token/"+token,
+                "http://"+host+":"+empresaport+"/api/v0/token/"+token,
                 HttpMethod.GET,
                 request,
                 Void.class);

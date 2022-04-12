@@ -51,25 +51,26 @@ public class ReservaControladorTest {
     @Autowired
     private SimpleDateFormat sdf2;
 
-    private String idDestino="VAL";
+    private final String idDestino="VAL";
     private final String nombreDestino="Valencia";
     private final String fechaStr="01052022";
     private final Float hora = 12F;
-    private String email="email@email.com";
     private String idBus;
 
     @BeforeAll
     void starting() throws Exception {
         Date fecha = sdf2.parse(fechaStr);
         destinoService.add(new DestinoInputDto(idDestino,nombreDestino));
-        idBus = autobusService.add(new AutobusInputDto(idDestino, fecha, hora, 2)).getId();
+        int maxPlazas = 5;
+        idBus = autobusService.add(new AutobusInputDto(idDestino, fecha, hora, 2, maxPlazas)).getId();
     }
 
     @Test
     @DisplayName("Testing POST reserva")
     void testAddReserva() throws Exception {
         Date fecha = sdf2.parse(fechaStr);
-        ReservaInputDto inputDto = new ReservaInputDto(idDestino,"nombre2","apellido","111111",email,fecha,hora);
+        String email = "email@email.com";
+        ReservaInputDto inputDto = new ReservaInputDto(idDestino,"nombre2","apellido","111111", email,fecha,hora);
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
         MvcResult res = mockMvc.perform(post("/api/v0/reserva/")
                         .contentType(MediaType.APPLICATION_JSON)
